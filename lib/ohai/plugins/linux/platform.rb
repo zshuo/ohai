@@ -28,7 +28,7 @@ provides "platform", "platform_version", "platform_family"
 
 require_plugin 'linux::lsb'
 
-# platform [ and platform_version ? ] should be lower case to avoid dealing with RedHat/Redhat/redhat matching 
+# platform [ and platform_version ? ] should be lower case to avoid dealing with RedHat/Redhat/redhat matching
 if File.exists?("/etc/oracle-release")
   contents = File.read("/etc/oracle-release").chomp
   platform "oracle"
@@ -49,7 +49,7 @@ elsif File.exists?("/etc/debian_version")
   elsif lsb[:id] =~ /LinuxMint/i
     platform "linuxmint"
     platform_version lsb[:release]
-  else 
+  else
     if File.exists?("/usr/bin/raspi-config")
       platform "raspbian"
     else
@@ -92,7 +92,7 @@ elsif lsb[:id] =~ /ScientificSL/i
 elsif lsb[:id] =~ /XenServer/i
   platform "xenserver"
   platform_version lsb[:release]
-elsif lsb[:id] # LSB can provide odd data that changes between releases, so we currently fall back on it rather than dealing with its subtleties 
+elsif lsb[:id] # LSB can provide odd data that changes between releases, so we currently fall back on it rather than dealing with its subtleties
   platform lsb[:id].downcase
   platform_version lsb[:release]
 end
@@ -104,6 +104,9 @@ case platform
   when /fedora/
     platform_family "fedora"
   when /oracle/, /centos/, /redhat/, /scientific/, /enterpriseenterprise/, /amazon/, /xenserver/ # Note that 'enterpriseenterprise' is oracle's LSB "distributor ID"
+    # NOTE: use of amazon and xenserver above are incorrect since they are not strinctly recompiled RHEL and do not share the
+    # same platform_version (RHEL 6.x = CentOS 6.x = OEL 6.x != Amazon 6.x != XenServer 6.x), do not add future distros to this
+    # family unless their core is strictly recompiled RHEL.
     platform_family "rhel"
   when /suse/
     platform_family "suse"
@@ -111,6 +114,6 @@ case platform
     platform_family "gentoo"
   when /slackware/
     platform_family "slackware"
-  when /arch/ 
-    platform_family "arch" 
+  when /arch/
+    platform_family "arch"
 end
