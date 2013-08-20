@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,7 +18,7 @@
 
 
 require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper.rb')
-require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper.rb') 
+require File.expand_path(File.dirname(__FILE__) + '/../../../spec_helper.rb')
 
 describe Ohai::System, "Linux plugin platform" do
   before(:each) do
@@ -37,20 +37,21 @@ describe Ohai::System, "Linux plugin platform" do
     File.stub(:exists?).with("/etc/slackware-version").and_return(false)
     File.stub(:exists?).with("/etc/enterprise-release").and_return(false)
     File.stub(:exists?).with("/etc/oracle-release").and_return(false)
+    File.stub(:exists?).with("/etc/Eos-release").and_return(false)
     File.stub(:exists?).with("/usr/bin/raspi-config").and_return(false)
   end
-  
+
   describe "on lsb compliant distributions" do
     before(:each) do
       @plugin[:lsb][:id] = "Ubuntu"
       @plugin[:lsb][:release] = "8.04"
     end
-    
+
     it "should set platform to lowercased lsb[:id]" do
-      @plugin.run        
+      @plugin.run
       @plugin[:platform].should == "ubuntu"
     end
-    
+
     it "should set platform_version to lsb[:release]" do
       @plugin.run
       @plugin[:platform_version].should == "8.04"
@@ -153,7 +154,7 @@ describe Ohai::System, "Linux plugin platform" do
       @plugin[:platform_family].should == "slackware"
     end
   end
-  
+
   describe "on arch" do
     before(:each) do
       @plugin.lsb = nil
@@ -167,7 +168,7 @@ describe Ohai::System, "Linux plugin platform" do
     end
 
   end
-  
+
   describe "on gentoo" do
     before(:each) do
       @plugin.lsb = nil
@@ -228,47 +229,47 @@ describe Ohai::System, "Linux plugin platform" do
 	@plugin[:platform_family].should == "rhel"
       end
     end
-  
+
     describe "without lsb_release results" do
       before(:each) do
         @plugin.lsb = nil
         File.should_receive(:exists?).with("/etc/redhat-release").and_return(true)
       end
-  
+
       it "should read the platform as centos and version as 5.3" do
         File.should_receive(:read).with("/etc/redhat-release").and_return("CentOS release 5.3")
         @plugin.run
         @plugin[:platform].should == "centos"
       end
-  
+
       it "may be that someone munged Red Hat to be RedHat" do
         File.should_receive(:read).with("/etc/redhat-release").and_return("RedHat release 5.3")
         @plugin.run
         @plugin[:platform].should == "redhat"
         @plugin[:platform_version].should == "5.3"
       end
-  
+
       it "should read the platform as redhat and version as 5.3" do
         File.should_receive(:read).with("/etc/redhat-release").and_return("Red Hat release 5.3")
         @plugin.run
         @plugin[:platform].should == "redhat"
         @plugin[:platform_version].should == "5.3"
       end
-  
+
       it "should read the platform as fedora and version as 13 (rawhide)" do
         File.should_receive(:read).with("/etc/redhat-release").and_return("Fedora release 13 (Rawhide)")
         @plugin.run
         @plugin[:platform].should == "fedora"
         @plugin[:platform_version].should == "13 (rawhide)"
       end
-      
+
       it "should read the platform as fedora and version as 10" do
         File.should_receive(:read).with("/etc/redhat-release").and_return("Fedora release 10")
         @plugin.run
         @plugin[:platform].should == "fedora"
         @plugin[:platform_version].should == "10"
       end
-  
+
       it "should read the platform as fedora and version as 13 using to_i" do
         File.should_receive(:read).with("/etc/redhat-release").and_return("Fedora release 13 (Rawhide)")
         @plugin.run
@@ -309,7 +310,7 @@ describe Ohai::System, "Linux plugin platform" do
       before(:each) do
         @plugin.lsb = nil
       end
- 
+
       it "should read the platform as oracle and version as 5" do
         File.stub(:exists?).with("/etc/redhat-release").and_return(true)
         File.stub(:read).with("/etc/redhat-release").and_return("Enterprise Linux Enterprise Linux Server release 5 (Carthage)")
@@ -349,7 +350,7 @@ describe Ohai::System, "Linux plugin platform" do
         @plugin[:platform].should == "oracle"
         @plugin[:platform_version].should == "6.0"
       end
-  
+
       it "should read the platform as oracle and version as 6.1" do
         File.stub(:exists?).with("/etc/redhat-release").and_return(true)
         File.stub(:read).with("/etc/redhat-release").and_return("Red Hat Enterprise Linux Server release 6.1 (Santiago)")
@@ -371,7 +372,7 @@ describe Ohai::System, "Linux plugin platform" do
       before(:each) do
         @plugin[:lsb][:id] = "SUSE LINUX"
       end
-      
+
       it "should read the platform as suse" do
         @plugin[:lsb][:release] = "12.1"
         File.should_receive(:read).with("/etc/SuSE-release").exactly(1).times.and_return("openSUSE 12.1 (x86_64)\nVERSION = 12.1\nCODENAME = Asparagus\n")
@@ -386,14 +387,14 @@ describe Ohai::System, "Linux plugin platform" do
       before(:each) do
         @plugin.lsb = nil
       end
-      
+
       it "should set platform and platform_family to suse and bogus verion to 10.0" do
         File.should_receive(:read).with("/etc/SuSE-release").at_least(:once).and_return("VERSION = 10.0")
         @plugin.run
         @plugin[:platform].should == "suse"
         @plugin[:platform_family].should == "suse"
       end
-      
+
       it "should read the version as 10.1 for bogus SLES 10" do
         File.should_receive(:read).with("/etc/SuSE-release").and_return("SUSE Linux Enterprise Server 10 (i586)\nVERSION = 10\nPATCHLEVEL = 1\n")
         @plugin.run
@@ -401,7 +402,7 @@ describe Ohai::System, "Linux plugin platform" do
         @plugin[:platform_version].should == "10.1"
         @plugin[:platform_family].should == "suse"
       end
-      
+
       it "should read the version as 11.2" do
         File.should_receive(:read).with("/etc/SuSE-release").and_return("SUSE Linux Enterprise Server 11.2 (i586)\nVERSION = 11\nPATCHLEVEL = 2\n")
         @plugin.run
@@ -409,7 +410,7 @@ describe Ohai::System, "Linux plugin platform" do
         @plugin[:platform_version].should == "11.2"
         @plugin[:platform_family].should == "suse"
       end
-      
+
       it "[OHAI-272] should read the version as 11.3" do
         File.should_receive(:read).with("/etc/SuSE-release").exactly(1).times.and_return("openSUSE 11.3 (x86_64)\nVERSION = 11.3")
         @plugin.run
@@ -417,7 +418,7 @@ describe Ohai::System, "Linux plugin platform" do
         @plugin[:platform_version].should == "11.3"
         @plugin[:platform_family].should == "suse"
       end
-      
+
       it "[OHAI-272] should read the version as 9.1" do
         File.should_receive(:read).with("/etc/SuSE-release").exactly(1).times.and_return("SuSE Linux 9.1 (i586)\nVERSION = 9.1")
         @plugin.run
@@ -425,7 +426,7 @@ describe Ohai::System, "Linux plugin platform" do
         @plugin[:platform_version].should == "9.1"
         @plugin[:platform_family].should == "suse"
       end
-      
+
       it "[OHAI-272] should read the version as 11.4" do
         File.should_receive(:read).with("/etc/SuSE-release").exactly(1).times.and_return("openSUSE 11.4 (i586)\nVERSION = 11.4\nCODENAME = Celadon")
         @plugin.run
