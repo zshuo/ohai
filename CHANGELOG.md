@@ -1,9 +1,95 @@
 # Ohai Changelog
 
-## Unreleased:
-* Update specs to use RSpec 3 syntax
+## Unreleased
+* [**Phil Dibowitz**](https://github.com/jymzh):
+  Provide a new and improved filesystem plugin for Linux & Mac (filesystem2), to
+  support CentOS7, multiple virtual filesystes, etc.
+* [**Jonathan Amiez**](https://github.com/josqu4red):
+  Linux filesystems plugin report wrong fs-type for logical volumes
+* [**involucelate**](https://github.com/involucelate)
+  Fix windows 2008 hostname truncation #554
+* [**Pavel Yudin**](https://github.com/Kasen):
+  Detect Parallels host and guest virtualisation
+* [**Phil Dibowitz**](https://github.com/jymzh):
+  Fix Darwin filesystem plugin on newer MacOSX
+* [**Claire McQuin**](https://github.com/mcquin):
+  Deprecate Ohai::Config in favor of Ohai::Config.ohai.
+* [**Claire McQuin**](https://github.com/mcquin):
+  Load a configuration file while running as an application.
 
-## Release 7.6.0
+## Release 8.5.0
+
+* [PR #548](https://github.com/chef/ohai/548):
+  Coerce non-UTF8 strings to UTF8 in output to suppress UTF8 encoding exceptions
+* [PR #544](https://github.com/chef/ohai/pull/544)
+  add support for Wind River Linux and Cisco's Nexus platforms
+
+## Release 8.4.0
+
+* Correctly skip unwanted DMI information
+* Collect DMI information on Solaris/x86
+
+## Release 8.3.0
+
+* [**Jeremy Mauro**](https://github.com/jmauro):
+  Removing trailing space and '\r' for windows #474
+* [**Tim Smith**](https://github.com/tas50):
+  Ensure Gentoo based Linuxen get IP information
+* [PR #534](https://github.com/chef/ohai/534)
+  Ignore OEM logo on Windows
+
+## Release 8.2.0
+
+* [**Michael Glenney**](https://github.com/Maniacal)
+  Remove redundant if statement
+
+* Remove Cloudstack support due to GPL licensed library
+
+## Release 8.1.1
+* Fix broken DigitalOcean plugin
+
+## Release 8.1.0
+
+* [**Warren Bain**](https://github.com/thoughtcroft)
+  Fix for removal of :Config in ruby 2.2
+* [**Chris Luciano**](https://github.com/cmluciano)
+  Add language elixir
+* [**Chris Luciano**](https://github.com/cmluciano)
+  Update WARNING for ohai 7 syntax docs page
+* [**Malte Swart**](https://github.com/mswart)
+  ssh_host_key: detect ed25519 host key
+* [**hirose31**](https://github.com/hirose31)
+  Detect OpenStack guest server using dmidecode
+* [**Chris Luciano**](https://github.com/cmluciano)
+  Add language rust.
+* [**Tim Smith**](https://github.com/tas50)
+  Add additional information on the PHP engine versions to PHP plugin
+* [**Paul Czarkowski**](https://github.com/paulczar)
+  detect if inside Docker container
+* [**Michael Schmidt**](https://github.com/BugRoger)
+  OHAI-339 Unable to detect IPAddress on CoreOS/Gentoo
+* [**Stafford Brunk**](https://github.com/wingrunr21)
+  Digital Ocean ohai/cloud support round
+* [**Sten Spans**](https://github.com/sspans)
+  Fix network.rb for XenServer Creedence
+* [**Shuo Zhang**](https://github.com/zshuo)
+  Update linux plugin cpu.rb and spec_cpu.rb to support S390
+* [**Alexey Karpik**](https://github.com/akarpik)
+  Fix up incorrect cloudstack metadata
+* [**Jeff Goldschrafe**](https://github.com/jgoldschrafe)
+  cloud_v2 fails to initialize on GCE hosts without external IP
+* [**Ryan Chipman**](https://github.com/rychipman)
+  Archlinux Version
+* [**Jose Luis Salas**](https://github.com/josacar)
+  Add a trailing dot to avoid using search option in resolv.conf
+* [**Eric G. Wolfe**](https://github.com/atomic-penguin)
+  block_device rotational key
+* [**Josh Blancett**](https://github.com/jblancett)
+  add extra metadata passed in from hints in knife-linode
+
+* Update mime-types dependency
+
+## Release 8.0.0
 
 * [**sawanoboly**](https://github.com/sawanoboly)
   Retrieve OpenStack-specific metadata.
@@ -31,6 +117,13 @@
   Look for any number of spaces between the VxID and the value.
 * [**Daniel Searles**](https://github.com/squaresurf):
   Removed *.static.cloud-ips.com and fixed the DNS resolution on Rackspace hosts.
+
+* Update specs to use RSpec 3 syntax
+* Update mixlib-shellout pin to ~> 2.x
+
+## Release 7.6.0
+
+* This release was yanked due to mixlib-shellout 1.x/2.x issues
 
 ## Release 7.4.0
 

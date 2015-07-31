@@ -15,12 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'chef-config/workstation_config_loader'
 require 'ohai'
 require 'ohai/log'
 require 'mixlib/cli'
 
 class Ohai::Application
   include Mixlib::CLI
+
+  option :config_file,
+    :short       => "-c CONFIG",
+    :long        => "--config CONFIG",
+    :description => "A configuration file to use",
+    :proc => lambda { |path| File.expand_path(path, Dir.pwd) }
 
   option :directory,
     :short       => "-d DIRECTORY",
@@ -66,7 +73,6 @@ class Ohai::Application
 
   def run
     configure_ohai
-    configure_logging
     run_application
   end
 
@@ -74,19 +80,11 @@ class Ohai::Application
     @attributes = parse_options
     @attributes = nil if @attributes.empty?
 
-    Ohai::Config.merge!(config)
-    if Ohai::Config[:directory]
-      Ohai::Config[:plugin_path] << Ohai::Config[:directory]
-    end
-  end
-
-  def configure_logging
-    Ohai::Log.init(Ohai::Config[:log_location])
-    Ohai::Log.level = Ohai::Config[:log_level]
+    load_workstation_config
   end
 
   def run_application
-    ohai = Ohai::System.new
+    ohai = Ohai::System.new(config)
     ohai.all_plugins(@attributes)
 
     if @attributes
@@ -102,13 +100,25 @@ class Ohai::Application
     # Log a fatal error message to both STDERR and the Logger, exit the application
     def fatal!(msg, err = -1)
       STDERR.puts("FATAL: #{msg}")
-      Chef::Log.fatal(msg)
+      Ohai::Log.fatal(msg)
       Process.exit err
     end
 
     def exit!(msg, err = -1)
-      Chef::Log.debug(msg)
+      Ohai::Log.debug(msg)
       Process.exit err
+    end
+  end
+
+  private
+  def load_workstation_config
+    config_loader = ChefConfig::WorkstationConfigLoader.new(
+      config[:config_file], Ohai::Log
+    )
+    begin
+      config_loader.load
+    rescue ChefConfig::ConfigurationError => config_error
+      Ohai::Application.fatal!(config_error.message)
     end
   end
 end

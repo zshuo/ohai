@@ -73,6 +73,15 @@ Base Board Information
 	Type: Unknown
 	Contained Object Handles: 0
 
+Handle 0x1000, DMI type 16, 15 bytes
+Physical Memory Array
+	Location: Other
+	Use: System Memory
+	Error Correction Type: Multi-bit ECC
+	Maximum Capacity: 2 GB
+	Error Information Handle: Not Provided
+	Number Of Devices: 1
+
 Handle 0x0003, DMI type 3, 21 bytes
 Chassis Information
 	Manufacturer: No Enclosure
@@ -123,6 +132,17 @@ describe Ohai::System, "plugin dmi" do
         @plugin.run
         expect(@plugin[:dmi][id][attribute]).to eql(value)
       end
+      it "should have [:dmi][:#{id}][:#{attribute}] set for windows output" do
+        @stdout = convert_windows_output(DMI_OUT)
+        expect(@plugin).to receive(:shell_out).with("dmidecode").and_return(mock_shell_out(0, @stdout, ""))
+        @plugin.run
+        expect(@plugin[:dmi][id][attribute]).to eql(value)
+      end
     end
+  end
+
+  it "should correctly ignore unwanted data" do
+    @plugin.run
+    expect(@plugin[:dmi][:base_board]).not_to have_key(:error_correction_type)
   end
 end

@@ -27,6 +27,10 @@ Ohai.plugin(:Virtualization) do
     which('lxc-version')
   end
 
+  def docker_exists?
+    which('docker')
+  end
+
   collect_data(:linux) do
     virtualization Mash.new unless virtualization
     virtualization[:systems] = Mash.new unless virtualization[:systems]
@@ -101,6 +105,15 @@ Ohai.plugin(:Virtualization) do
       virtualization[:systems][:openvz] = "guest"
     end
 
+    # Detect Parallels virtual machine from pci devices
+    if File.exists?("/proc/bus/pci/devices")
+      if File.read("/proc/bus/pci/devices") =~ /1ab84000/
+        virtualization[:system] = "parallels"
+        virtualization[:role] = "guest"
+        virtualization[:systems][:parallels] = "guest"
+      end
+    end
+
     # http://www.dmo.ca/blog/detecting-virtualization-on-linux
     if File.exists?("/usr/sbin/dmidecode")
       so = shell_out("dmidecode")
@@ -129,6 +142,14 @@ Ohai.plugin(:Virtualization) do
           virtualization[:role] = "guest"
           virtualization[:systems][:vbox] = "guest"
         end
+      when /Product Name: OpenStack/
+        virtualization[:system] = "openstack"
+        virtualization[:role] = "guest"
+        virtualization[:systems][:openstack] = "guest"
+      when /Manufacturer: QEMU/
+        virtualization[:system] = "kvm"
+        virtualization[:role] = "guest"
+        virtualization[:systems][:kvm] = "guest"
       else
         nil
       end
@@ -170,9 +191,9 @@ Ohai.plugin(:Virtualization) do
     # Kernel docs, https://www.kernel.org/doc/Documentation/cgroups
     if File.exists?("/proc/self/cgroup")
       if File.read("/proc/self/cgroup") =~ %r{^\d+:[^:]+:/(lxc|docker)/.+$}
-        virtualization[:system] = "lxc"
+        virtualization[:system] = $1
         virtualization[:role] = "guest"
-        virtualization[:systems][:lxc] = "guest"
+        virtualization[:systems][$1.to_sym] = "guest"
       elsif lxc_version_exists? && File.read("/proc/self/cgroup") =~ %r{\d:[^:]+:/$}
         # lxc-version shouldn't be installed by default
         # Even so, it is likely we are on an LXC capable host that is not being used as such
@@ -181,12 +202,15 @@ Ohai.plugin(:Virtualization) do
           virtualization[:system] = "lxc"
           virtualization[:role] = "host"
         end
-
         # In general, the 'systems' framework from OHAI-182 is less susceptible to conflicts
         # But, this could overwrite virtualization[:systems][:lxc] = "guest"
         # If so, we may need to look further for a differentiator (OHAI-573)
         virtualization[:systems][:lxc] = "host"
       end
+    elsif File.exists?("/.dockerenv") || File.exists?("/.dockerinit")
+        virtualization[:system] = "docker"
+        virtualization[:role] = "guest"
+        virtualization[:systems][:docker] = "guest"
     end
   end
 end

@@ -24,7 +24,7 @@ require 'pathname'
 module Ohai
 
   # Ohai plugin loader. Finds all the plugins in your
-  # `Ohai::Config[:plugin_path]` (supports a single or multiple path setting
+  # `Ohai.config[:plugin_path]` (supports a single or multiple path setting
   # here), evaluates them and returns plugin objects.
   class Loader
 
@@ -57,7 +57,7 @@ module Ohai
     # Searches all plugin paths and returns an Array of PluginFile objects
     # representing each plugin file.
     def plugin_files_by_dir
-      Array(Ohai::Config[:plugin_path]).inject([]) do |plugin_files, plugin_path|
+      Array(Ohai.config[:plugin_path]).inject([]) do |plugin_files, plugin_path|
         plugin_files + PluginFile.find_all_in(plugin_path)
       end
     end
@@ -111,7 +111,7 @@ module Ohai
         Ohai::Log.warn("[DEPRECATION] Plugin at #{plugin_path} is a version 6 plugin. \
 Version 6 plugins will not be supported in future releases of Ohai. \
 Please upgrade your plugin to version 7 plugin syntax. \
-For more information visit here: docs.opscode.com/ohai_custom.html")
+For more information visit here: docs.chef.io/ohai_custom.html")
 
         load_v6_plugin_class(contents, plugin_path, plugin_dir_path)
       end

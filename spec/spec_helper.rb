@@ -11,7 +11,7 @@ require 'spec/support/platform_helpers'
 require 'spec/support/integration_helper'
 require 'wmi-lite'
 require 'ohai'
-Ohai::Config[:log_level] = :error
+Ohai.config[:log_level] = :error
 
 PLUGIN_PATH = File.expand_path("../../lib/ohai/plugins", __FILE__)
 SPEC_PLUGIN_PATH = File.expand_path("../data/plugins", __FILE__)
@@ -30,6 +30,10 @@ end
 def get_plugin(plugin, ohai = Ohai::System.new, path = PLUGIN_PATH)
   loader = Ohai::Loader.new(ohai)
   loader.load_plugin(File.join(path, "#{plugin}.rb"))
+end
+
+def convert_windows_output(stdout)
+  stdout.gsub("\n", "\r\n")
 end
 
 def it_should_check_from(plugin, attribute, from, value)
@@ -87,6 +91,10 @@ end
 
 RSpec.configure do |config|
 
+  # Not worth addressing warnings in Ohai until upstream ones in ffi-yajl are
+  # fixed.
+  # config.warnings = true
+
   config.raise_errors_for_deprecations!
 
   # `expect` should be preferred for new tests or when refactoring old tests,
@@ -110,6 +118,10 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
 
   config.before :each do
+    # TODO: Change to Ohai.config once Ohai::Config is deprecated fully. Needs
+    # to stay Ohai::Config for now so that top-level attributes will get cleared
+    # out between tests (config_spec should be the only place where top-level
+    # config attributes are set).
     Ohai::Config.reset
   end
 end

@@ -24,7 +24,7 @@ Ohai.plugin(:Cloud) do
   depends "linode"
   depends "openstack"
   depends "azure"
-  depends "cloudstack"
+  depends "digital_ocean"
 
   # Make top-level cloud hashes
   #
@@ -217,28 +217,32 @@ Ohai.plugin(:Cloud) do
   end
 
   # ----------------------------------------
-  # cloudstack
+  # digital_ocean
   # ----------------------------------------
 
-  # Is current cloud cloudstack-based?
+  # Is current cloud digital_ocean?
   #
   # === Return
-  # true:: If cloudstack Hash is defined
+  # true:: If digital_ocean Mash is defined
   # false:: Otherwise
-  def on_cloudstack?
-    cloudstack != nil
+  def on_digital_ocean?
+    digital_ocean != nil
   end
 
-  # Fill cloud hash with cloudstack values
-  def get_cloudstack_values
-    cloud[:public_ips] << cloudstack['public_ipv4']
-    cloud[:private_ips] << cloudstack['local_ipv4']
-    cloud[:public_ipv4] = cloudstack['public_ipv4']
-    cloud[:public_hostname] = cloudstack['public_hostname']
-    cloud[:local_ipv4] = cloudstack['local_ipv4']
-    cloud[:local_hostname] = cloudstack['local_hostname']
-    cloud[:vm_id] = cloudstack['vm_id']
-    cloud[:provider] = "cloudstack"
+  # Fill cloud hash with linode values
+  def get_digital_ocean_values
+    public_ipv4 = digital_ocean['networks']['v4'].select {|address| address['type'] == 'public'}
+    private_ipv4 = digital_ocean['networks']['v4'].select {|address| address['type'] == 'private'}
+    public_ipv6 = digital_ocean['networks']['v6'].select {|address| address['type'] == 'public'}
+    private_ipv6 = digital_ocean['networks']['v6'].select {|address| address['type'] == 'private'}
+    cloud[:public_ips].concat public_ipv4+public_ipv6
+    cloud[:private_ips].concat private_ipv4+private_ipv6
+    cloud[:public_ipv4] = public_ipv4.first
+    cloud[:public_ipv6] = public_ipv6.first
+    cloud[:local_ipv4] = private_ipv4.first
+    cloud[:local_ipv6] = private_ipv6.first
+    cloud[:public_hostname] = digital_ocean['name']
+    cloud[:provider] = "digital_ocean"
   end
 
   collect_data do    
@@ -283,10 +287,10 @@ Ohai.plugin(:Cloud) do
       get_azure_values
     end
 
-    # setup cloudstack cloud
-    if on_cloudstack?
+    # setup digital_ocean cloud data
+    if on_digital_ocean?
       create_objects
-      get_cloudstack_values
+      get_digital_ocean_values
     end
   end
 end

@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,14 +47,14 @@ describe Ohai::System, "plugin ruby" do
     :host_cpu => ::RbConfig::CONFIG['host_cpu'],
     :host_os => ::RbConfig::CONFIG['host_os'],
     :host_vendor => ::RbConfig::CONFIG['host_vendor'],
-    :gems_dir => %x{#{ruby_bin} #{::RbConfig::CONFIG['bindir']}/gem env gemdir}.chomp!,
+    :gems_dir => %x{#{ruby_bin} #{::RbConfig::CONFIG['bindir']}/gem env gemdir}.chomp,
     :gem_bin => [ ::Gem.default_exec_format % 'gem', 'gem' ].map{|bin| "#{::RbConfig::CONFIG['bindir']}/#{bin}"
       }.find{|bin| ::File.exists? bin},
     :ruby_bin => ruby_bin
   }.each do |attribute, value|
-    it "should have #{attribute} set" do
+    it "should have #{attribute} set to #{value.inspect}" do
       expect(@ruby_ohai_data[attribute]).to eql(value)
     end
   end
-  
+
 end

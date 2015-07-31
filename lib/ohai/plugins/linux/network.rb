@@ -33,6 +33,14 @@ Ohai.plugin(:Network) do
     encap
   end
 
+  def ipv6_enabled?
+    File.exist? "/proc/net/if_inet6"
+  end
+
+  def iproute2_binary_available?
+    ["/sbin/ip", "/usr/bin/ip", "/bin/ip"].any? { |path| File.exist?(path) }
+  end
+
   collect_data(:linux) do
     require 'ipaddr'
 
@@ -49,20 +57,21 @@ Ohai.plugin(:Network) do
     # The '@eth0:' portion doesn't exist on primary interfaces and thus is optional in the regex
     IPROUTE_INT_REGEX = /^(\d+): ([0-9a-zA-Z@:\.\-_]*?)(@[0-9a-zA-Z]+|):\s/ unless defined? IPROUTE_INT_REGEX
 
-    if File.exist?("/sbin/ip")
-
+    if iproute2_binary_available?
       # families to get default routes from
       families = [{
                     :name => "inet",
                     :default_route => "0.0.0.0/0",
                     :default_prefix => :default,
                     :neighbour_attribute => :arp
-                  },{
+                  }]
+
+      families << {
                     :name => "inet6",
                     :default_route => "::/0",
                     :default_prefix => :default_inet6,
                     :neighbour_attribute => :neighbour_inet6
-                  }]
+                  } if ipv6_enabled?
 
       so = shell_out("ip addr")
       cint = nil
@@ -137,6 +146,7 @@ Ohai.plugin(:Network) do
       so.stdout.lines do |line|
         if line =~ IPROUTE_INT_REGEX
           tmp_int = $2
+          iface[tmp_int] = Mash.new unless iface[tmp_int]
           net_counters[tmp_int] = Mash.new unless net_counters[tmp_int]
         end
 
